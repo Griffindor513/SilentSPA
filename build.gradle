@@ -1,0 +1,44 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+    mavenCentral()
+    // Mod Menu 的官方仓库（只用来拿它的 API 做编译期依赖）
+    maven { url = "https://maven.terraformersmc.com/releases/" }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // Mod Menu 15.0.2 对应 MC 1.21.6~1.21.8。只做「可选」集成：
+    // 编译时用它的 API，运行时没装 Mod Menu 也不会被加载（入口点只有在 Mod Menu 装了才会去取）。
+    // 不带上它的传递依赖，免得把旧版 fabric-api 模块拖进编译类路径。
+    modCompileOnly("com.terraformersmc:modmenu:15.0.2") { transitive = false }
+}
+
+processResources {
+    inputs.property "version", project.version
+    // filter 同样按 filteringCharset 读写，不显式设成 UTF-8 时取平台默认
+    // （容器里常是 ASCII），会把 description 里的中文破坏成非法 UTF-8：
+    // Gradle 仍报 BUILD SUCCESSFUL，但最终 JAR 里的 JSON 已经坏了。
+    filteringCharset = 'UTF-8'
+    // 只替换版本占位符。Gradle expand 会把 JSON 字符串里的 \n 解释成真实换行，
+    // 造成源文件合法、最终 JAR 中 fabric.mod.json 却损坏。
+    filesMatching("fabric.mod.json") {
+        filter { line -> line.replace('${version}', project.version.toString()) }
+    }
+}
+
+// jar 根目录带一份许可证全文，别人拿到成品也能直接看到协议
+tasks.named('jar') { from('LICENSE') }
+
+tasks.withType(JavaCompile).configureEach { options.release = 21; options.encoding = 'UTF-8' }
+java { toolchain.languageVersion = JavaLanguageVersion.of(21); withSourcesJar() }
+base { archivesName = project.archives_base_name }

@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "cn.blockforge.generated.silentknock.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "AddServerScreenMixin",
+    "ClientLoginNetworkHandlerMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "ConnectScreenMixin",
+    "DirectConnectScreenMixin",
+    "DisconnectedScreenMixin",
+    "GameMenuScreenMixin",
+    "MultiplayerScreenMixin",
+    "MultiplayerServerListPingerMixin",
+    "ServerEntryMixin",
+    "OptionsScreenMixin",
+    "ServerInfoMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}
